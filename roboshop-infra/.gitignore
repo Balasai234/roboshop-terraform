@@ -1,0 +1,14 @@
+# Ignore Terraform directories and files
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# IDE / OS specific
+.vscode/
+.DS_Store
+*.log
