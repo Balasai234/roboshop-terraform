@@ -12,27 +12,11 @@ resource "aws_instance" "openvpn" {
     }
   )
 }
-resource "terraform_data" "mongodb" {
-  triggers_replace = [
-    aws_instance.mongodb.id
-  ]
-  
-  provisioner "file" {
-    source      = "bootstrap.sh"
-    destination = "/tmp/bootstrap.sh"
-  }
-
-  connection {
-    type     = "ssh"
-    user     = "ec2-user"
-    password = "DevOps321"
-    host     = aws_instance.mongodb.private_ip
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/bootstrap.sh",
-      "sudo sh /tmp/bootstrap.sh mongodb ${var.environment}"
-    ]
-  }
+resource "aws_route53_record" "vpn" {
+  zone_id = var.zone_id
+  name    = "vpn-${var.environment}.${var.zone_name}"
+  type    = "A"
+  ttl     = 1
+  records = [aws_instance.openvpn.public_ip]
+  allow_overwrite = true
 }

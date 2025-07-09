@@ -18,3 +18,11 @@ variable "var_tags" {
   }
   
 }
+variable "zone_id" {
+  type = string
+  default = "Z05939662N1222ETTVGZT"
+}
+variable "zone_name" {
+  type = string
+  default = "roboshop.fun"
+}

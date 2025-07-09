@@ -28,3 +28,15 @@ variable "mongodb_ports_vpn" {
   type = list(string)
   default = ["27017","22"]
 }
+variable "redis_ports_vpn" {
+  type = list(string)
+  default = ["6379","22"]
+}
+variable "mysql_ports_vpn" {
+    default = ["22", "3306"]
+}
+variable "rabbitmq_ports_vpn" {
+  type = list(string)
+  default = ["5672","22"]
+  
+}
