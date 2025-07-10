@@ -97,3 +97,15 @@ AMI creation allows us to launch new instances consistently.
 
 Let me know if you want to add instructions for other services like user, cart, or use Ansible instead of shell scripts!
 
+| Topic                    | Answer                                                               |
+| ------------------------ | -------------------------------------------------------------------- |
+| Who launches EC2?        | Auto Scaling Group, using Launch Template (via internal EC2 API)     |
+| Who registers EC2 to TG? | Auto Scaling Group does it automatically if TG is linked to the ASG  |
+| What triggers scaling?   | CloudWatch alarms or scheduled events                                |
+| Why use this setup?      | It ensures automatic scaling, self-healing, and traffic distribution |
+
+User → Route 53 → ALB → Listener → Target Group → EC2 (from ASG)
+                                 |
+                                [Auto Scaling Group]
+                                 |
+                    [Launch Template (AMI, instance type, etc)]
