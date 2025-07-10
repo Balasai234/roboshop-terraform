@@ -1,0 +1,99 @@
+RoboShop Terraform Infrastructure - Catalogue Service Deployment
+
+This Terraform module provisions the necessary AWS resources for deploying the Catalogue microservice in the RoboShop project. It is designed to work as part of a microservice-based architecture and follows infrastructure-as-code best practices.
+
+📦 What This Module Does
+
+Creates an EC2 instance for the catalogue service.
+
+Builds a custom AMI from the configured instance.
+
+Launches the AMI into an Auto Scaling Group.
+
+Registers the instance with an ALB target group.
+
+Connects the catalogue service to MongoDB securely within a private subnet.
+
+Provisions required Security Groups and IAM roles (optional).
+
+Supports provisioning with shell scripts or Ansible.
+
+🔄 Real-Time Example Explanation
+
+Imagine a user visits:
+
+http://catalogue.backend-dev.roboshop.fun
+
+Here's how the request flows:
+
+Route 53 resolves the domain to the internal ALB DNS name.
+
+ALB receives the request and forwards it to the Target Group on port 8080.
+
+The Target Group sends the request to one of the EC2 instances running the catalogue service.
+
+The EC2 instance (launched via Auto Scaling using an AMI) runs the Node.js catalogue app.
+
+The app connects to MongoDB, fetches product info, and returns the response.
+
+🧠 How Does the App Know MongoDB's Address?
+
+Terraform only creates infrastructure.
+
+The actual MongoDB connection is handled inside the Node.js code like:
+
+const mongoURL = process.env.MONGO_URL;
+
+This environment variable is injected by the bootstrap script (catalogue.sh) during provisioning:
+
+echo "MONGO_URL=mongodb.roboshop.internal:27017" >> /etc/catalogue.env
+
+The script is executed via Terraform’s remote-exec provisioner.
+
+🚀 Real-World Analogy
+
+Route 53 = Receptionist (resolves domain)
+
+ALB = Call Router
+
+Target Group = Team of available agents
+
+EC2 (App) = Employee who handles requests
+
+MongoDB EC2 = Internal database system
+
+Auto Scaling = Hiring more agents during peak hours
+
+AMI/Template = Training manual for new agents
+
+📁 Folder Structure
+
+roboshop-infra/
+│
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── catalogue.sh  # Installation and configuration script
+│   └── README.md      # This file
+
+✅ Pre-Requisites
+
+AWS CLI configured
+
+Terraform installed
+
+Git repository for pulling app code (optional)
+
+VPC, Subnets, and MongoDB EC2 already created
+
+📌 Notes
+
+This setup assumes MongoDB is already available in a private subnet.
+
+Auto Scaling and Load Balancer ensure fault tolerance and scalability.
+
+AMI creation allows us to launch new instances consistently.
+
+Let me know if you want to add instructions for other services like user, cart, or use Ansible instead of shell scripts!
+
