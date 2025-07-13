@@ -79,6 +79,66 @@ module "catalogue" {
   environment = var.environment
   
 }
+module "user" {
+  source = "../../Terraform/aws-SGM"
+  sg_name = "user"
+  sg_description = "Security group for User service"
+  vpc_id = local.vpc_id
+  project = var.project
+  environment = var.environment
+  
+}
+module "cart" {
+  source = "../../Terraform/aws-SGM"
+  sg_name = "cart"
+  sg_description = "Security group for Cart service"
+  vpc_id = local.vpc_id
+  project = var.project
+  environment = var.environment
+  
+}
+module "shipping" {
+  source = "../../Terraform/aws-SGM"
+  sg_name = "shipping"
+  sg_description = "Security group for Shipping service"
+  vpc_id = local.vpc_id
+  project = var.project
+  environment = var.environment
+  
+}
+module "payment" {
+  source = "../../Terraform/aws-SGM"
+  sg_name = "payment"
+  sg_description = "Security group for Payment service"
+  vpc_id = local.vpc_id
+  project = var.project
+  environment = var.environment
+  
+}
+
+module "frontend" {
+    #source = "../../terraform-aws-securitygroup"
+    source = "git::https://github.com/daws-84s/terraform-aws-securitygroup.git?ref=main"
+    project = var.project
+    environment = var.environment
+
+    sg_name = var.frontend_sg_name
+    sg_description = var.frontend_sg_description
+    vpc_id = local.vpc_id
+}
+
+module "frontend_alb" {
+    #source = "../../terraform-aws-securitygroup"
+    source = "git::https://github.com/daws-84s/terraform-aws-securitygroup.git?ref=main"
+    project = var.project
+    environment = var.environment
+
+    sg_name = "frontend-alb"
+    sg_description = "for frontend alb"
+    vpc_id = local.vpc_id
+}
+
+
 #bastion accespting connections from laptop
 resource "aws_security_group" "bastion_laptop" {
   ingress {
@@ -188,7 +248,7 @@ resource "aws_security_group_rule" "catalogue_bastion_ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.bastion.sg_id
+  source_security_group_id = module.sg_bastion.sg_id
   security_group_id = module.catalogue.sg_id
 }
 # Allowing the VPN to access the Catalogue service on port 8080
@@ -209,3 +269,179 @@ resource "aws_security_group_rule" "catalogue_backend_alb" {
   source_security_group_id = module.backend_alb.sg_id
   security_group_id = module.catalogue.sg_id
 }
+#User
+resource "aws_security_group_rule" "user_vpn_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.user.sg_id
+}
+
+resource "aws_security_group_rule" "user_bastion_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.sg_bastion.sg_id
+  security_group_id = module.user.sg_id
+}
+
+resource "aws_security_group_rule" "user_vpn_http" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.user.sg_id
+}
+
+resource "aws_security_group_rule" "user_backend_alb" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.backend_alb.sg_id
+  security_group_id = module.user.sg_id
+}
+
+#Cart
+resource "aws_security_group_rule" "cart_vpn_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.cart.sg_id
+}
+
+resource "aws_security_group_rule" "cart_bastion_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.sg_bastion.sg_id
+  security_group_id = module.cart.sg_id
+}
+
+resource "aws_security_group_rule" "cart_vpn_http" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.cart.sg_id
+}
+
+resource "aws_security_group_rule" "cart_backend_alb" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.backend_alb.sg_id
+  security_group_id = module.cart.sg_id
+}
+
+#Shipping
+resource "aws_security_group_rule" "shipping_vpn_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.shipping.sg_id
+}
+
+resource "aws_security_group_rule" "shipping_bastion_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.sg_bastion.sg_id
+  security_group_id = module.shipping.sg_id
+}
+
+resource "aws_security_group_rule" "shipping_vpn_http" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.shipping.sg_id
+}
+
+resource "aws_security_group_rule" "shipping_backend_alb" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.backend_alb.sg_id
+  security_group_id = module.shipping.sg_id
+}
+
+#Payment
+resource "aws_security_group_rule" "payment_vpn_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.payment.sg_id
+}
+
+resource "aws_security_group_rule" "payment_bastion_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.sg_bastion.sg_id
+  security_group_id = module.payment.sg_id
+}
+
+resource "aws_security_group_rule" "payment_vpn_http" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.payment.sg_id
+}
+
+resource "aws_security_group_rule" "payment_backend_alb" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.backend_alb.sg_id
+  security_group_id = module.payment.sg_id
+}
+
+#Backend ALB
+resource "aws_security_group_rule" "backend_alb_vpn" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id
+  security_group_id = module.backend_alb.sg_id
+}
+#Frontend ALB
+
+resource "aws_security_group_rule" "frontend_alb_frontend" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.frontend_alb.sg_id
+}
+resource "aws_security_group_rule" "frontend_alb_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443   
+  protocol          = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.frontend_alb.sg_id
+}
+
